@@ -1,154 +1,153 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>Проект «Комменты»</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-<head>
-  <title>Проект "Комменты"</title>
-  <meta charset="utf-8" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
+  <body>
+    <div class="container">
+      <ul class="comments"></ul>
 
-<body>
-  <div class="container">
-    <ul class="comments">
-      <li class="comment">
-        <div class="comment-header">
-          <div>Глеб Фокин</div>
-          <div>12.02.22 12:18</div>
+      <div class="add-form">
+        <input
+          type="text"
+          class="add-form-name"
+          placeholder="Введите ваше имя"
+        />
+
+        <textarea
+          class="add-form-text"
+          placeholder="Введите ваш комментарий"
+          rows="4"
+        ></textarea>
+
+        <div class="add-form-row">
+          <button class="add-form-button">
+            Написать
+          </button>
         </div>
-        <div class="comment-body">
-          <div class="comment-text">
-            Это будет первый комментарий на этой странице
-          </div>
-        </div>
-        <div class="comment-footer">
-          <div class="likes">
-            <span class="likes-counter">3</span>
-            <button class="like-button"></button>
-          </div>
-        </div>
-      </li>
-      <li class="comment">
-        <div class="comment-header">
-          <div>Варвара Н.</div>
-          <div>13.02.22 19:22</div>
-        </div>
-        <div class="comment-body">
-          <div class="comment-text">
-            Мне нравится как оформлена эта страница! ❤
-          </div>
-        </div>
-        <div class="comment-footer">
-          <div class="likes">
-            <span class="likes-counter">75</span>
-            <button class="like-button -active-like"></button>
-          </div>
-        </div>
-      </li>
-    </ul>
-    <div class="add-form">
-      <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
-      <textarea type="textarea" class="add-form-text" placeholder="Введите ваш коментарий" rows="4"></textarea>
-      <div class="add-form-row">
-        <button class="add-form-button">Написать</button>
       </div>
     </div>
-  </div>
-</body>
 
-<script>
+    <script>
+      const commentsList = document.querySelector('.comments');
+      const nameInput = document.querySelector('.add-form-name');
+      const textInput = document.querySelector('.add-form-text');
+      const addButton = document.querySelector('.add-form-button');
 
-  // 1.	Сначала найди в JS все нужные элементы: 
-  // список комментариев, поле имени, поле комментария и кнопку.
-  const commentsList = document.querySelector('.comments');
-  const nameInput = document.querySelector('.add-form-name');
-  const textInput = document.querySelector('.add-form-text');
-  const button = document.querySelector('.add-form-button');
-  // 2. Потом добавить  addEventListener('click', ...)  на кнопку.
-  button.addEventListener('click', () => {
-    //  3.  взять текст из полей через свойство  value .
-    //  У  input  и  textarea  именно  value  хранит то, что ввёл пользователь
-    const name = nameInput.value.trim();
-    const text = textInput.value.trim();
-    //  Проверка на пустые поля: берем значение поля, убирай пробелы через  trim()  и проверяем, 
-    // пустая ли строка.  
-    // trim()  удаляет пробелы в начале и в конце строки, поэтому поле с одними пробелами тоже считается пустым.
-    if (name === "" || text === "") {
-      return;
-    }
-    const date = new Date().toLocaleString(); // берём текущее время и делаем строку
-    //  начинаем собирать HTML нового комментария
-    const newComment = `
-    <li class="comment">
-          <div class="comment-header">
-            <div>${name}</div>
-            <div>${date}</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              ${text}
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">0</span>
-              <button class="like-button"></button>
-            </div>
-          </div>
-        </li>
-    `;
-    commentsList.innerHTML += newComment;  // добавляем новый комментарий в конец списка
+      let comments = [
+        {
+          name: 'Глеб Фокин',
+          date: '12.02.22 12:18',
+          text: 'Это будет первый комментарий на этой странице',
+          likes: 3,
+          isLiked: false,
+        },
+        {
+          name: 'Варвара Н.',
+          date: '13.02.22 19:22',
+          text: 'Мне нравится как оформлена эта страница! ❤',
+          likes: 75,
+          isLiked: true,
+        },
+      ];
 
+      function renderComments() {
+        commentsList.innerHTML = comments
+          .map((comment, index) => {
+            let activeClass = '';
 
+            if (comment.isLiked) {
+              activeClass = '-active-like';
+            }
 
-  });
+            return `
+              <li class="comment">
+                <div class="comment-header">
+                  <div>${comment.name}</div>
+                  <div>${comment.date}</div>
+                </div>
 
-  commentsList.addEventListener("click", (event) => {
-    if (event.target.classList.contains("like-button")) {
-      // Создаём переменную  likeButton .
-      // В неё кладём ту кнопку, по которой кликнули.
-      const likeButton = event.target;
+                <div class="comment-body">
+                  <div class="comment-text">
+                    ${comment.text}
+                  </div>
+                </div>
 
-      // closest(".likes")  ищет ближайший родительский элемент с классом  .likes .
-      // Это нужно, чтобы найти именно блок лайков этого комментария.
-      const likesBlock = likeButton.closest(".likes");
+                <div class="comment-footer">
+                  <div class="likes">
+                    <span class="likes-counter">
+                      ${comment.likes}
+                    </span>
 
-      //  querySelector(".likes-counter")  ищет внутри блока  .likes  элемент с классом  .likes-counter .
-      // 		Это тот самый  <span> , где написано число лайков.
-      const likesCounter = likesBlock.querySelector(".likes-counter");
-
-      //     likesCounter.textContent  берёт текст внутри  span .
-      // Например, там строка  "3" .
-      // Number(...)  превращает строку в число.
-      let count = Number(likesCounter.textContent);
-
-
-
-      // Если класс есть, мы его убираем.
-      // Это значит: лайк снимается, кнопка становится неактивной.
-
-      if (likeButton.classList.contains("-active-like")) {
-       likeButton.classList.remove("-active-like");
-       count--;
-
+                    <button
+                      class="like-button ${activeClass}"
+                      data-comment-index="${index}"
+                    ></button>
+                  </div>
+                </div>
+              </li>
+            `;
+          })
+          .join('');
       }
 
-      // Если класс  -active-like  не был найден, значит лайк ещё не поставлен.
-	    // Тогда выполняется блок  else .
-      else{
-        // Добавляем активный класс. Это значит: кнопка визуально становится “нажатой”
-        likeButton.classList.add("-active-like");
-        count++;
+      commentsList.addEventListener('click', (event) => {
+        const likeButton = event.target.closest('.like-button');
 
-      }
-      likesCounter.textContent = count;
-    }
+        if (!likeButton) {
+          return;
+        }
 
+        const commentIndex = Number(likeButton.dataset.commentIndex);
+        const comment = comments[commentIndex];
 
-  });
+        if (comment.isLiked === false) {
+          comment.isLiked = true;
+          comment.likes = comment.likes + 1;
+        } else {
+          comment.isLiked = false;
+          comment.likes = comment.likes - 1;
+        }
 
+        renderComments();
+      });
 
+      addButton.addEventListener('click', () => {
+        const name = nameInput.value.trim();
+        const text = textInput.value.trim();
 
+        // Если хотя бы одно поле пустое — ничего не делаем
+        if (name === '' || text === '') {
+          return;
+        }
 
-</script>
+        // Формируем дату строго в формате дд.мм.гг чч:мм для задания
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = String(now.getFullYear()).slice(-2);
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
 
+        comments.push({
+          name: name,
+          date: `${day}.${month}.${year} ${hours}:${minutes}`,
+          text: text,
+          likes: 0,
+          isLiked: false,
+        });
+
+        nameInput.value = '';
+        textInput.value = '';
+
+        renderComments();
+      });
+
+      // Первый запуск отрисовки начальных комментариев
+      renderComments();
+    </script>
+  </body>
 </html>
