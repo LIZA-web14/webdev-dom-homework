@@ -1,0 +1,154 @@
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+  <title>Проект "Комменты"</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="container">
+    <ul class="comments">
+      <li class="comment">
+        <div class="comment-header">
+          <div>Глеб Фокин</div>
+          <div>12.02.22 12:18</div>
+        </div>
+        <div class="comment-body">
+          <div class="comment-text">
+            Это будет первый комментарий на этой странице
+          </div>
+        </div>
+        <div class="comment-footer">
+          <div class="likes">
+            <span class="likes-counter">3</span>
+            <button class="like-button"></button>
+          </div>
+        </div>
+      </li>
+      <li class="comment">
+        <div class="comment-header">
+          <div>Варвара Н.</div>
+          <div>13.02.22 19:22</div>
+        </div>
+        <div class="comment-body">
+          <div class="comment-text">
+            Мне нравится как оформлена эта страница! ❤
+          </div>
+        </div>
+        <div class="comment-footer">
+          <div class="likes">
+            <span class="likes-counter">75</span>
+            <button class="like-button -active-like"></button>
+          </div>
+        </div>
+      </li>
+    </ul>
+    <div class="add-form">
+      <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
+      <textarea type="textarea" class="add-form-text" placeholder="Введите ваш коментарий" rows="4"></textarea>
+      <div class="add-form-row">
+        <button class="add-form-button">Написать</button>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+
+  // 1.	Сначала найди в JS все нужные элементы: 
+  // список комментариев, поле имени, поле комментария и кнопку.
+  const commentsList = document.querySelector('.comments');
+  const nameInput = document.querySelector('.add-form-name');
+  const textInput = document.querySelector('.add-form-text');
+  const button = document.querySelector('.add-form-button');
+  // 2. Потом добавить  addEventListener('click', ...)  на кнопку.
+  button.addEventListener('click', () => {
+    //  3.  взять текст из полей через свойство  value .
+    //  У  input  и  textarea  именно  value  хранит то, что ввёл пользователь
+    const name = nameInput.value.trim();
+    const text = textInput.value.trim();
+    //  Проверка на пустые поля: берем значение поля, убирай пробелы через  trim()  и проверяем, 
+    // пустая ли строка.  
+    // trim()  удаляет пробелы в начале и в конце строки, поэтому поле с одними пробелами тоже считается пустым.
+    if (name === "" || text === "") {
+      return;
+    }
+    const date = new Date().toLocaleString(); // берём текущее время и делаем строку
+    //  начинаем собирать HTML нового комментария
+    const newComment = `
+    <li class="comment">
+          <div class="comment-header">
+            <div>${name}</div>
+            <div>${date}</div>
+          </div>
+          <div class="comment-body">
+            <div class="comment-text">
+              ${text}
+            </div>
+          </div>
+          <div class="comment-footer">
+            <div class="likes">
+              <span class="likes-counter">0</span>
+              <button class="like-button"></button>
+            </div>
+          </div>
+        </li>
+    `;
+    commentsList.innerHTML += newComment;  // добавляем новый комментарий в конец списка
+
+
+
+  });
+
+  commentsList.addEventListener("click", (event) => {
+    if (event.target.classList.contains("like-button")) {
+      // Создаём переменную  likeButton .
+      // В неё кладём ту кнопку, по которой кликнули.
+      const likeButton = event.target;
+
+      // closest(".likes")  ищет ближайший родительский элемент с классом  .likes .
+      // Это нужно, чтобы найти именно блок лайков этого комментария.
+      const likesBlock = likeButton.closest(".likes");
+
+      //  querySelector(".likes-counter")  ищет внутри блока  .likes  элемент с классом  .likes-counter .
+      // 		Это тот самый  <span> , где написано число лайков.
+      const likesCounter = likesBlock.querySelector(".likes-counter");
+
+      //     likesCounter.textContent  берёт текст внутри  span .
+      // Например, там строка  "3" .
+      // Number(...)  превращает строку в число.
+      let count = Number(likesCounter.textContent);
+
+
+
+      // Если класс есть, мы его убираем.
+      // Это значит: лайк снимается, кнопка становится неактивной.
+
+      if (likeButton.classList.contains("-active-like")) {
+       likeButton.classList.remove("-active-like");
+       count--;
+
+      }
+
+      // Если класс  -active-like  не был найден, значит лайк ещё не поставлен.
+	    // Тогда выполняется блок  else .
+      else{
+        // Добавляем активный класс. Это значит: кнопка визуально становится “нажатой”
+        likeButton.classList.add("-active-like");
+        count++;
+
+      }
+      likesCounter.textContent = count;
+    }
+
+
+  });
+
+
+
+
+</script>
+
+</html> -->
