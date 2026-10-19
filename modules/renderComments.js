@@ -9,7 +9,7 @@ function initCommentListeners(comments) {
       const index = commentElement.dataset.index;
       const currentComment = comments[index];
 
-      textInput.value = `> ${currentComment.text}\n${currentComment.name}, `;
+      textInput.value = `> ${currentComment.text}\n${currentComment.author.name}, `;
       textInput.focus();
     });
   }
@@ -50,7 +50,7 @@ export function renderComments(comments) {
       return `
           <li class="comment" data-index="${index}">
             <div class="comment-header">
-              <div>${comment.name}</div>
+              <div>${comment.author.name}</div>
               <div>${comment.date}</div>
             </div>
 

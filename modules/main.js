@@ -5,22 +5,32 @@ const nameInput = document.querySelector('.add-form-name');
 const textInput = document.querySelector('.add-form-text');
 const addButton = document.querySelector('.add-form-button');
 
+// Адрес личного хранилища на сервере
+const host = 'https://wedev-api.sky.pro/api/v1/Liza/comments';
+
+// Пустой массив, куда мы положим данные из интернета
 let comments = [
-  {
-    name: 'Глеб Фокин',
-    date: '12.02.22 12:18',
-    text: 'Это будет первый комментарий на этой странице',
-    likes: 3,
-    isLiked: false,
-  },
-  {
-    name: 'Варвара Н.',
-    date: '13.02.22 19:22',
-    text: 'Мне нравится как оформлена эта страница! ❤',
-    likes: 75,
-    isLiked: true,
-  },
+//   
 ];
+// Функция GET: забирает комментарии с сервера и рисует их
+function fetchAndRenderComments () {
+    fetch(host, {
+        method: 'GET',
+    })
+    .then((response) => {
+        return response.json(); //  Переводим ответ сервера в понятный JS-объект
+    })
+    .then ((responseData) => {
+        // Сервер прислал объект: { comments: [...] }
+      // берём этот массив и кладём в наш let comments:
+      comments = responseData.comments;
+    //   Запускаем отрисовку! 
+      renderComments(comments); 
+    })
+    
+}
+// При открытии сайта сразу скачиваем и показываем комментарии
+fetchAndRenderComments();
 
 addButton.addEventListener('click', () => {
   const name = sanitizeHtml(nameInput.value.trim());
@@ -30,26 +40,27 @@ addButton.addEventListener('click', () => {
     return;
   }
 
-  const now = new Date();
-  const day = String(now.getDate()).padStart(2, '0');
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const year = String(now.getFullYear()).slice(-2);
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
+  fetch(host, {
+    method:  'POST',
+    body: JSON.stringify({
+      name: name, // имя из инпута
+      text: text, // текст из инпута
+    }),
+  })
+  .then((response) => {
+      return response.json(); // распаковываем ответ сервера: { result: "ok" }
+    })
+  .then(() => {
+    // Сервер подтвердил: «Я всё сохранил!»
+      // Теперь очищаем поля формы, чтобы юзер мог писать следующий комментарий:
+      nameInput.value = '';
+      textInput.value = '';
 
-  comments.push({
-    name: name,
-    date: `${day}.${month}.${year} ${hours}:${minutes}`,
-    text: text,
-    likes: 0,
-    isLiked: false,
-  });
+      // А как показать новый комментарий на экране?
+      // Мы просто вызываем нашу функцию как было выше на33строчке!
+      fetchAndRenderComments();
+  })
 
-  nameInput.value = '';
-  textInput.value = '';
-
-  renderComments(comments);
+  
 });
 
-// Запуск приложения
-renderComments(comments);
