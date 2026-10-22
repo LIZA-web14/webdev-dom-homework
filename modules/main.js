@@ -1,9 +1,14 @@
 import { sanitizeHtml } from './sanitizeHtml.js';
 import { renderComments } from './renderComments.js';
+// 1. Находим элементы на странице
 
 const nameInput = document.querySelector('.add-form-name');
 const textInput = document.querySelector('.add-form-text');
 const addButton = document.querySelector('.add-form-button');
+// Новые элементы для лоадеров:
+const loadingCommentsElement = document.querySelector('.loading-comments');
+const addFormElement = document.querySelector('.add-form');
+const loadingCommentElement = document.querySelector('.loading-comment-text');
 
 // Адрес личного хранилища на сервере
 const host = 'https://wedev-api.sky.pro/api/v1/Liza/comments';
@@ -14,7 +19,7 @@ let comments = [
 ];
 // Функция GET: забирает комментарии с сервера и рисует их
 function fetchAndRenderComments () {
-    fetch(host, {
+    return fetch(host, {
         method: 'GET',
     })
     .then((response) => {
@@ -29,8 +34,12 @@ function fetchAndRenderComments () {
     })
     
 }
-// При открытии сайта сразу скачиваем и показываем комментарии
-fetchAndRenderComments();
+
+// 3. СТАРТ: Загружаем комментарии при входе на сайт
+fetchAndRenderComments().then(() => {
+  // Когда первая загрузка завершилась — скрываем надпись "Комментарии загружаются..."
+  loadingCommentsElement.style.display = 'none';
+});
 
 addButton.addEventListener('click', () => {
   const name = sanitizeHtml(nameInput.value.trim());
@@ -39,6 +48,11 @@ addButton.addEventListener('click', () => {
   if (name === '' || text === '') {
     return;
   }
+   // ВОТ ЗДЕСЬ МЫ ИСПОЛЬЗУЕМ ЭТИ ПЕРЕМЕННЫЕ:
+  // Прячем форму и показываем надпись "Комментарий добавляется..."
+  addFormElement.style.display = 'none';
+  loadingCommentElement.style.display = 'block';
+
 
   fetch(host, {
     method:  'POST',
@@ -51,16 +65,20 @@ addButton.addEventListener('click', () => {
       return response.json(); // распаковываем ответ сервера: { result: "ok" }
     })
   .then(() => {
-    // Сервер подтвердил: «Я всё сохранил!»
-      // Теперь очищаем поля формы, чтобы юзер мог писать следующий комментарий:
+      // POST завершился -> возвращаем GET-запрос:
+      return fetchAndRenderComments();
+    })
+    .then(() => {
+      // Данные скачались! Возвращаем форму обратно на экран:
+      addFormElement.style.display = 'flex';
+      loadingCommentElement.style.display = 'none';
+
+      // Очищаем форму:
       nameInput.value = '';
       textInput.value = '';
-
-      // А как показать новый комментарий на экране?
-      // Мы просто вызываем нашу функцию как было выше на33строчке!
-      fetchAndRenderComments();
-  })
+    
+    })
 
   
-});
+});         
 
