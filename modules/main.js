@@ -23,6 +23,11 @@ function fetchAndRenderComments () {
         method: 'GET',
     })
     .then((response) => {
+      
+
+      if(response.status === 500){
+        throw new Error('СЕРВЕР_СЛОМАЛСЯ')
+      }
         return response.json(); //  Переводим ответ сервера в понятный JS-объект
     })
     .then ((responseData) => {
@@ -31,6 +36,16 @@ function fetchAndRenderComments () {
       comments = responseData.comments;
     //   Запускаем отрисовку! 
       renderComments(comments); 
+    })
+    .catch((error) => { 
+      // Если это ошибка 500:
+      if(error.message === 'СЕРВЕР_СЛОМАЛСЯ'){
+        alert('Сервер сломался, попробуй позже');
+        return;
+      }
+      // Если это не 500, значит, оборвался интернет:
+      alert('Кажется, пропал интернет. Проверьте соединение.');
+      console.error('Технические подробности:', error);
     })
     
 }
@@ -62,6 +77,12 @@ addButton.addEventListener('click', () => {
     }),
   })
   .then((response) => {
+    if(response.status === 400){
+      throw new Error('НЕВЕРНЫЙ_ВВОД');
+    }
+    if(response.status === 500){
+      throw new Error('СЕРВЕР_СЛОМАЛСЯ');
+    }
       return response.json(); // распаковываем ответ сервера: { result: "ok" }
     })
   .then(() => {
@@ -78,6 +99,26 @@ addButton.addEventListener('click', () => {
       textInput.value = '';
     
     })
+      .catch((error) => {
+      // 1. ОБЯЗАТЕЛЬНО возвращаем форму, прячем лоадер:
+      addFormElement.style.display = 'flex';
+      loadingCommentElement.style.display = 'none';
+
+      // 2. Показываем нужный alert в зависимости от проблемы:
+      if (error.message === 'НЕВЕРНЫЙ_ВВОД') {
+        alert('Имя и комментарий должны быть не короче 3 символов');
+        return;
+      }
+
+      if (error.message === 'СЕРВЕР_СЛОМАЛСЯ') {
+        alert('Сервер сломался, попробуй позже');
+        return;
+      }
+
+      // 3. Если это не 400 и не 500 — значит, интернет:
+      alert('Кажется, у вас сломался интернет, попробуйте позже');
+      console.error(error);
+  });
 
   
 });         
