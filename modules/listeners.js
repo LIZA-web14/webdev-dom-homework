@@ -1,3 +1,4 @@
+//обрабатывает лайки и клики по кнопке «Написать».
 
 import { comments } from './comments.js';
 import { renderComments } from './renderComments.js';
@@ -17,6 +18,11 @@ function delay(interval = 300) {
 export function initCommentListeners() {
   const commentElements = document.querySelectorAll('.comment');
   const textInput = document.querySelector('.add-form-text');
+
+   // ЕСЛИ ПОЛЬЗОВАТЕЛЬ НЕ АВТОРИЗОВАН — поля ввода нет, цитировать некуда
+  if (!textInput) {
+    return;
+  }
 
   for (const commentElement of commentElements) {
     commentElement.addEventListener('click', () => {
@@ -66,23 +72,27 @@ export function initLikeButtonListeners() {
 // 3. Кнопка "Написать"
 export function initAddCommentListener() {
   const addButton = document.querySelector('.add-form-button');
-  const nameInput = document.querySelector('.add-form-name');
   const textInput = document.querySelector('.add-form-text');
   const addFormElement = document.querySelector('.add-form');
+
   const loadingCommentElement = document.querySelector('.loading-comment-text');
+  // ЕСЛИ КНОПКИ НЕТ (пользователь не вошёл) — просто выходим, никакой ошибки не будет!
+  if (!addButton) {
+    return;
+  }
 
   addButton.addEventListener('click', () => {
-    const name = sanitizeHtml(nameInput.value.trim());
+    
     const text = sanitizeHtml(textInput.value.trim());
 
-    if (name === '' || text === '') {
+    if ( text === '') {
       return;
     }
 
     addFormElement.style.display = 'none';
     loadingCommentElement.style.display = 'block';
 
-    addComment({ name, text })
+    addComment({ text })
       .then(() => {
         return fetchAndRenderComments();
       })
@@ -90,7 +100,7 @@ export function initAddCommentListener() {
         addFormElement.style.display = 'flex';
         loadingCommentElement.style.display = 'none';
 
-        nameInput.value = '';
+        
         textInput.value = '';
       })
       .catch((error) => {

@@ -1,11 +1,15 @@
+//рисует список комментариев
 
 import { comments } from './comments.js';
 import { initCommentListeners, initLikeButtonListeners } from './listeners.js';
 
-const commentsList = document.querySelector('.comments');
-
 // Функция ТОЛЬКО рисует HTML на странице
 export function renderComments() {
+
+const commentsList = document.querySelector('.comments');
+if (!commentsList) return;
+
+
   commentsList.innerHTML = comments
     .map((comment, index) => {
       let activeClass = '';
