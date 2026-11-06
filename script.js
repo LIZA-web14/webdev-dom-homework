@@ -1,0 +1,160 @@
+const commentsList = document.querySelector('.comments');
+const nameInput = document.querySelector('.add-form-name');
+const textInput = document.querySelector('.add-form-text');
+const addButton = document.querySelector('.add-form-button');
+
+let comments = [
+  {
+    name: 'Глеб Фокин',
+    date: '12.02.22 12:18',
+    text: 'Это будет первый комментарий на этой странице',
+    likes: 3,
+    isLiked: false,
+  },
+  {
+    name: 'Варвара Н.',
+    date: '13.02.22 19:22',
+    text: 'Мне нравится как оформлена эта страница! ❤',
+    likes: 75,
+    isLiked: true,
+  },
+];
+
+function renderComments() {
+  commentsList.innerHTML = comments
+    .map((comment, index) => {
+      let activeClass = '';
+
+      if (comment.isLiked) {
+        activeClass = '-active-like';
+      }
+
+      return `
+              <li class="comment" data-index="${index}">
+                <div class="comment-header">
+                  <div>${comment.name}</div>
+                  <div>${comment.date}</div>
+                </div>
+
+                <div class="comment-body">
+                  <div class="comment-text">
+                    ${comment.text}
+                  </div>
+                </div>
+
+                <div class="comment-footer">
+                  <div class="likes">
+                    <span class="likes-counter">
+                      ${comment.likes}
+                    </span>
+
+                    <button
+                      class="like-button ${activeClass}"
+                      data-comment-index="${index}"
+                    ></button>
+                  </div>
+                </div>
+              </li>
+            `;
+    })
+    .join('');
+  initCommentListeners();
+  initLikeButtonListeners();
+}
+
+function initLikeButtonListeners() {
+  // Находим все кнопки лайков
+  const likeButtons = document.querySelectorAll('.like-button');
+
+  for (const likeButton of likeButtons) {
+    likeButton.addEventListener('click', (event) => {
+      // ВОТ ОНО! Останавливаем всплытие, чтобы клик не дошел до карточки:
+      event.stopPropagation();
+
+      const commentIndex = Number(likeButton.dataset.commentIndex);
+      const comment = comments[commentIndex];
+
+      if (comment.isLiked === false) {
+        comment.isLiked = true;
+        comment.likes = comment.likes + 1;
+      } else {
+        comment.isLiked = false;
+        comment.likes = comment.likes - 1;
+      }
+
+      renderComments();
+    });
+  }
+}
+// =====================================================================
+// Добавление нового комментария
+// =====================================================================
+
+addButton.addEventListener('click', () => {
+  // === ИЗМЕНЕНО: Добавлена цепочка .replaceAll() для защиты от XSS (HTML-кода) ===
+  // Если пользователь введет <h1>Привет</h1>, символы < и > заменятся
+  // на безопасные &lt; и &gt;. Браузер не создаст тег, а покажет это как текст.
+
+  const name = nameInput.value
+    .trim()
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+
+  const text = textInput.value
+    .trim()
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+
+  // Если хотя бы одно поле пустое — ничего не делаем
+  if (name === '' || text === '') {
+    return;
+  }
+
+  // Формируем дату строго в формате дд.мм.гг чч:мм для задания
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = String(now.getFullYear()).slice(-2);
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+
+  comments.push({
+    name: name,
+    date: `${day}.${month}.${year} ${hours}:${minutes}`,
+    text: text,
+    likes: 0,
+    isLiked: false,
+  });
+
+  nameInput.value = '';
+  textInput.value = '';
+
+  renderComments();
+});
+
+// Первый запуск отрисовки начальных комментариев
+renderComments();
+
+function initCommentListeners() {
+  // 1. Находим ВСЕ карточки комментариев на странице
+  const commentElements = document.querySelectorAll('.comment');
+
+  // 2. Проходимся по каждой карточке циклом
+  for (const commentElement of commentElements) {
+    commentElement.addEventListener('click', () => {
+      // 3. Достаём индекс, который мы сохранили в data-index
+      const index = commentElement.dataset.index;
+      const currentComment = comments[index];
+
+      // 4. Подставляем в textarea нужный текст
+      textInput.value = `> ${currentComment.text}\n${currentComment.name}, `;
+
+      // 5. Ставим курсор в поле ввода
+      textInput.focus();
+    });
+  }
+}
